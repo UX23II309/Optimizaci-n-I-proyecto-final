@@ -55,14 +55,28 @@ class GameState:
         self.help = False
         self.auto = False
         self.challenge = False
+        self.energy = 100.0
+
+        self.aciertos = 0
+        self.intentos = 0
+
+        # Tutorial corto: los primeros pasos explican lo esencial.
+        self.tutorial_paso = 0
+        self.tutorial = [
+            'Paso 1: estos tres puntos forman el simplex. El mejor tiene menor f(x,y) y el peor se intenta reemplazar.',
+            'Paso 2: Nelder-Mead calcula el centroide usando los dos mejores puntos; el peor no entra en ese promedio.',
+            'Paso 3: el peor punto se mueve con reflexión. Si conviene, se acepta; si mejora mucho, puede haber expansión.',
+            'Paso 4: si la reflexión no ayuda, el algoritmo contrae o reduce el triángulo hacia una zona más prometedora.',
+        ]
 
         # Temporizadores.
         self.auto_timer = 0.0
         self.input_timer = 0.0
 
-        # Mensaje pedagógico del panel.
+        # Mensaje del panel.
         self.feedback = (
-            'Presiona ESPACIO para ejecutar un paso o TAB para activar el modo reto.'
+            'Objetivo: aprende cómo Nelder-Mead mueve un triángulo simplex. '
+            'Usa ESPACIO para ver pasos guiados o TAB para activar el modo reto.'
         )
 
         # Animación del simplex.
@@ -87,6 +101,7 @@ class GameState:
         self.started = True
         self.help = keep_help
         self.challenge = keep_challenge
+        self.energy = 100.0
 
     def _normalizar_op(self, op: str) -> str:
         """
@@ -134,10 +149,22 @@ class GameState:
             esperada = self._normalizar_op(self.nm.predecir_operacion())
             elegida = self._normalizar_op(guess)
 
+            # Contamos intentos para medir si el jugador aprendió.
+            self.intentos += 1
+
             if elegida == esperada:
-                self.feedback = f'Correcto: la operación era {esperada}.'
+                self.aciertos += 1
+                self.energy = min(100.0, self.energy + 10.0)
+                self.feedback = (
+                    f'Correcto: elegiste {esperada}. '
+                    'La energía sube porque identificaste bien la operación.'
+                    )
             else:
-                self.feedback = f'Elegiste {elegida}, pero tocaba {esperada}. Se ejecuta para aprender.'
+                self.energy = max(0.0, self.energy - 20.0)
+                self.feedback = (
+                    f'No era {elegida}; tocaba {esperada}. '
+                    'La energía baja porque aún falta reforzar esa decisión.'
+                     )
 
         # Ejecutamos el paso real del algoritmo.
         self.record = self.nm.step()
@@ -151,8 +178,13 @@ class GameState:
         self.particles.burst(sx, sy, self.record.operacion)
 
         # Si no estamos en modo reto, mostramos explicación normal.
+        # Los primeros pasos usan tutorial para que el jugador sí aprenda.
         if guess is None:
-            self.feedback = self.record.explicacion
+            if self.tutorial_paso < len(self.tutorial):
+                self.feedback = self.tutorial[self.tutorial_paso]
+                self.tutorial_paso += 1
+            else:
+                self.feedback = self.record.explicacion
 
     def update(self, dt):
         """Actualiza temporizadores, animación y partículas."""
@@ -296,4 +328,4 @@ def run():
         pygame.display.flip()
 
     pygame.quit()
-# IRONEDIT:1783473922:89442688be10841c1dae41a8bee9fa3400a4ee7a4449db9ad086e22e79fa616a
+# IRONEDIT:1783496881:5e2f336d100a700178e5f68b01f50edc3718576c2a35a89d4c6aea16aaec500a

@@ -355,4 +355,5 @@ def final_screen(surface, state, fonts):
         y += 7
 
     text(surface, 'R = reiniciar   |   1/2/3/4 = cambiar función   |   ESC = salir', box.x+50, box.bottom-55, med, GOOD)
+    
 # IRONEDIT:1783496901:e165c95e3e0183ad7af43bdb9103146fccc2757d6c837490b1baf7c3c05cedff

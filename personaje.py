@@ -1,3 +1,4 @@
+# personaje.py
 import math, random
 import pygame
 from config import GOOD, BAD, HOT, LAVA, COLD, ICE
@@ -72,4 +73,5 @@ class ParticleSystem:
         self.items=[p for p in self.items if p.life>0]
     def draw(self,surface):
         for p in self.items: p.draw(surface)
+            
 # IRONEDIT:1783041811:79df10693815740253537a733bf653b7b48169ad9cc8ff935b21dca664419b88

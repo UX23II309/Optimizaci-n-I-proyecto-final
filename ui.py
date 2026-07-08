@@ -81,6 +81,7 @@ def bar(surface, x, y, w, h, ratio, color, bg=(54,49,70)):
     pygame.draw.rect(surface, color, (x,y,int(w*ratio),h), border_radius=8)
     pygame.draw.rect(surface, (230,230,240), (x,y,w,h), 2, border_radius=8)
 
+
 def hud(surface, state, fonts):
     """
     Dibuja el panel derecho y el panel inferior.
@@ -96,6 +97,7 @@ def hud(surface, state, fonts):
     y = RIGHT_PANEL_Y + 20
     ancho = RIGHT_PANEL_W - 48
 
+    
     # Función pequeña para separar secciones
     def separador(y_pos):
         pygame.draw.line(surface, PANEL_LINE, (x, y_pos), (x + ancho, y_pos), 1)
@@ -252,6 +254,7 @@ def hud(surface, state, fonts):
         MUTED
     )
 
+
 def title_screen(surface, fonts, tick):
     """Pantalla de bienvenida: explica la metáfora del juego y las teclas para iniciar."""
     big, med, small, tiny = fonts
@@ -286,6 +289,7 @@ def title_screen(surface, fonts, tick):
         text(surface, 'Presiona ENTER para iniciar', box.x+52, box.bottom-82, med, GOOD)
 
     text(surface, 'Presiona H para ver ayuda', box.x+52, box.bottom-45, small, MUTED)
+
 
 def help_screen(surface, fonts):
     """Pantalla de ayuda: explica paso a paso qué representa cada operación de Nelder-Mead."""

@@ -339,4 +339,5 @@ class World:
             pygame.draw.circle(surface, (0, 0, 0), (x + 2, y + 4), pulse + 2)
             pygame.draw.circle(surface, color, (x, y), pulse)
             pygame.draw.circle(surface, (255, 255, 255), (x - 3, y - 3), 3)
+            
 # IRONEDIT:1783496898:6a7cdbaede4913586ee0fde50b61dc17ac496ed4e9424a4756bd61031a6e47b6

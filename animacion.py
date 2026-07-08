@@ -2,9 +2,7 @@ import random
 import pygame
  
 #animacion particulas del simplex
- 
 from config import GOOD, BAD, HOT, LAVA, COLD, PURPLE
- 
  
 class Particle:
     """Partícula individual con posición, velocidad, color y tiempo de vida limitado."""
@@ -71,4 +69,5 @@ class ParticleSystem:
         """Dibuja todas las partículas activas."""
         for p in self.items:
             p.draw(surface)
+         
 # IRONEDIT:1783476037:efd8b8502974481f3d1f8df312168625a710fa634885f0826fe3b2569a514a4e

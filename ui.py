@@ -98,13 +98,7 @@ def hud(surface, state, fonts):
 
     # Función pequeña para separar secciones
     def separador(y_pos):
-        pygame.draw.line(
-            surface,
-            PANEL_LINE,
-            (x, y_pos),
-            (x + ancho, y_pos),
-            1
-        )
+        pygame.draw.line(surface, PANEL_LINE, (x, y_pos), (x + ancho, y_pos), 1)
         return y_pos + 14
 
     # Título
@@ -126,6 +120,23 @@ def hud(surface, state, fonts):
     y += 22
 
     text(surface, f'Modo: {modo}', x, y, small, COLD)
+    y += 22
+
+    # Barra de energía de aprendizaje
+    color_energy = GOOD if state.energy > 40 else BAD
+    text(surface, 'Energía de aprendizaje', x, y, tiny, MUTED)
+    y += 18
+    bar(surface, x, y, ancho, 12, state.energy / 100.0, color_energy)
+    y += 18
+    text(surface, f'Energía: {int(state.energy)}%', x, y, tiny, TEXT)
+    y += 20
+
+    # Aciertos, si existen en esta versión
+    if hasattr(state, 'intentos') and state.intentos > 0:
+        porcentaje = (state.aciertos / state.intentos) * 100
+        text(surface, f'Aciertos: {state.aciertos}/{state.intentos} ({porcentaje:.0f}%)', x, y, tiny, GOOD)
+    else:
+        text(surface, 'Reto: TAB para evaluar aprendizaje', x, y, tiny, MUTED)
     y += 22
 
     text(surface, f'Iteración: {nm.iteracion}', x, y, small, TEXT)
@@ -161,16 +172,8 @@ def hud(surface, state, fonts):
     y += 30
 
     if record is None:
-        text(
-            surface,
-            'Presiona ESPACIO para ejecutar el primer paso del algoritmo.',
-            x,
-            y,
-            small,
-            TEXT,
-            ancho
-        )
-        y += 62
+        text(surface, 'ESPACIO: paso guiado. TAB: modo reto para elegir operación.', x, y, small, TEXT, ancho)
+        y += 56
     else:
         op_color = {
             'reflexión': COLD,
@@ -194,64 +197,60 @@ def hud(surface, state, fonts):
         y += 22
 
         text(surface, 'Cierre del triángulo', x, y, tiny, MUTED)
-        y += 20
+        y += 24
 
     y = separador(y)
 
     # Explicación
-    text(surface, 'EXPLICACIÓN', x, y, med, TITLE)
+    text(surface, 'FUNCIÓN OBJETIVO', x, y, med, TITLE)
     y += 30
     
+    descripcion = DESCRIPCIONES[nm.funcion_nombre]
+    y = text(surface, f'{nm.funcion_nombre}: {descripcion}', x, y, small, TEXT, ancho)
+    y += 12
+
+    # Frase corta para que el jugador entienda por qué se eligió esa función
+    if nm.funcion_nombre == 'himmelblau':
+        extra = 'Útil para ver varios valles posibles.'
+    elif nm.funcion_nombre == 'rosenbrock':
+        extra = 'Útil para ver un valle curvo y estrecho.'
+    elif nm.funcion_nombre == 'rastrigin':
+        extra = 'Útil para ver muchos mínimos locales.'
+    else:
+        extra = 'Caso suave para probar convergencia.'
+
+    panel(surface, pygame.Rect(BOTTOM_PANEL_X, BOTTOM_PANEL_Y - 48, BOTTOM_PANEL_W, BOTTOM_PANEL_H + 48), 18)
+
+    # Explicación del paso actual
+    text(surface, 'Explicación del paso', BOTTOM_PANEL_X + 20, BOTTOM_PANEL_Y - 34, med, TITLE)
+
     if record is None:
-        msg = 'Nelder-Mead ordena un triángulo de 3 puntos, mueve el peor y conserva los mejores.'
+        msg = 'Observa el triángulo: el azul es mejor, el amarillo es medio y el rosa es peor. Presiona ESPACIO para iniciar.'
     else:
         msg = state.feedback
 
-    # Texto con wrap para que no se salga del panel
-    y = text(surface, msg, x, y, small, TEXT, ancho)
-    y += 10
+    text(surface, msg, BOTTOM_PANEL_X + 20, BOTTOM_PANEL_Y - 5, small, TEXT, BOTTOM_PANEL_W - 40)
 
-    y = separador(y)
-
-    # Función actual
-
-    text(surface, 'FUNCIÓN OBJETIVO', x, y, med, TITLE)
-    y += 30
-
-    descripcion = DESCRIPCIONES[nm.funcion_nombre]
-    text(
-        surface,
-        f'{nm.funcion_nombre}: {descripcion}',
-        x,
-        y,
-        tiny,
-        TEXT,
-        ancho
-    )
-
-    # Panel inferior de controles
-    panel(surface, pygame.Rect(BOTTOM_PANEL_X, BOTTOM_PANEL_Y, BOTTOM_PANEL_W, BOTTOM_PANEL_H), 18)
-
-    text(surface, 'Controles', BOTTOM_PANEL_X + 20, BOTTOM_PANEL_Y + 13, med, TITLE)
+    # Controles: se dejan igual, solo bajan dentro del mismo panel
+    text(surface, 'Controles', BOTTOM_PANEL_X + 20, BOTTOM_PANEL_Y + 40, med, TITLE)
 
     line1 = 'ESPACIO: paso   |   TAB: modo reto   |   F reflexión   E expansión   C contracción   D reducción'
     line2 = 'M: automático   |   1 Himmelblau   2 Rosenbrock   3 Rastrigin   4 Sphere   |   R reiniciar   H ayuda'
 
-    text(surface, line1, BOTTOM_PANEL_X + 20, BOTTOM_PANEL_Y + 43, tiny, TEXT)
-    text(surface, line2, BOTTOM_PANEL_X + 20, BOTTOM_PANEL_Y + 65, tiny, TEXT)
+    text(surface, line1, BOTTOM_PANEL_X + 20, BOTTOM_PANEL_Y + 70, tiny, TEXT)
+    text(surface, line2, BOTTOM_PANEL_X + 20, BOTTOM_PANEL_Y + 92, tiny, TEXT)
 
     mode = 'AUTOMÁTICO' if state.auto else 'MANUAL'
     reto = 'RETO' if state.challenge else 'APRENDIZAJE'
-
+  
     text(
         surface,
         f'Modo: {mode} / {reto}. Cada paso representa una decisión real de Nelder-Mead.',
         BOTTOM_PANEL_X + 20,
-        BOTTOM_PANEL_Y + 91,
+        BOTTOM_PANEL_Y + 118,
         tiny,
         MUTED
     )
-
 
 def title_screen(surface, fonts, tick):
     """Pantalla de bienvenida: explica la metáfora del juego y las teclas para iniciar."""
@@ -356,4 +355,4 @@ def final_screen(surface, state, fonts):
         y += 7
 
     text(surface, 'R = reiniciar   |   1/2/3/4 = cambiar función   |   ESC = salir', box.x+50, box.bottom-55, med, GOOD)
-# IRONEDIT:1783481502:17708473e12f7d4202a5b07127b7fb37da77676dc0e4b40cb0bc53550d328905
+# IRONEDIT:1783496901:e165c95e3e0183ad7af43bdb9103146fccc2757d6c837490b1baf7c3c05cedff
